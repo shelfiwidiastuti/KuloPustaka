@@ -1,0 +1,283 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard · KuloPustaka{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+
+<div class="welcome">
+    <div>
+        <span class="eyebrow">RINGKASAN PERPUSTAKAAN</span>
+        <h1>Selamat datang, Admin 👋</h1>
+        <p>Kelola aktivitas perpustakaan Desa Kulo dari satu tempat.</p>
+    </div>
+
+    <a class="btn primary" href="{{ url_for('loans') }}">
+        <i class="fa-solid fa-plus"></i>
+        Peminjaman Baru
+    </a>
+</div>
+
+
+<!-- ================= STATISTIK ================= -->
+
+<div class="stats-grid">
+
+    {% for icon,label,value,cls in [
+        ('fa-book','Total Buku',stats.total_books,'blue'),
+        ('fa-book-open','Buku Tersedia',stats.available_books,'green'),
+        ('fa-arrow-right-arrow-left','Sedang Dipinjam',stats.borrowed_books,'orange'),
+        ('fa-triangle-exclamation','Terlambat',stats.overdue_books,'red'),
+        ('fa-users','Peminjam',stats.total_borrowers,'purple'),
+        ('fa-book-open-reader','Tamu Hari Ini',stats.today_visitors,'blue')
+    ] %}
+
+    <div class="stat-card">
+
+        <div class="stat-icon {{ cls }}">
+            <i class="fa-solid {{ icon }}"></i>
+        </div>
+
+        <div>
+            <small>{{ label }}</small>
+            <h2>{{ value }}</h2>
+        </div>
+
+    </div>
+
+    {% endfor %}
+
+</div>
+
+
+<!-- ================= PEMINJAMAN + BUKU TAMU ================= -->
+
+<div class="section-grid">
+
+    <!-- PEMINJAMAN TERBARU -->
+
+    <div class="card">
+
+        <div class="card-head">
+
+            <div>
+                <h3>Peminjaman Terbaru</h3>
+                <p>Aktivitas transaksi terakhir.</p>
+            </div>
+
+            <a href="{{ url_for('loans') }}">
+                Lihat semua →
+            </a>
+
+        </div>
+
+
+        <div class="table-wrap">
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>Peminjam</th>
+                        <th>Buku</th>
+                        <th>Tanggal</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for x in recent %}
+
+                    <tr>
+
+                        <td>
+                            <b>{{ x.name }}</b>
+                            <small>{{ x.member_code }}</small>
+                        </td>
+
+                        <td>
+                            {{ x.title }}
+                        </td>
+
+                        <td>
+                            {{ x.loan_date.strftime('%d/%m/%Y') }}
+                        </td>
+
+                        <td>
+
+                            <span class="badge {{ 'warning' if x.status == 'Dipinjam' else 'success' }}">
+                                {{ x.status }}
+                            </span>
+
+                        </td>
+
+                    </tr>
+
+                    {% else %}
+
+                    <tr>
+                        <td colspan="4" class="empty">
+                            Belum ada transaksi.
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
+    <!-- BUKU TAMU TERBARU -->
+
+    <div class="card">
+
+        <div class="card-head">
+
+            <div>
+                <h3>Buku Tamu Terbaru</h3>
+                <p>Kunjungan terbaru ke perpustakaan.</p>
+            </div>
+
+            <a href="{{ url_for('guestbook') }}">
+                Lihat semua →
+            </a>
+
+        </div>
+
+
+        <div class="table-wrap">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>Nama</th>
+                        <th>Asal</th>
+                        <th>Keperluan</th>
+                        <th>Tanggal</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for guest in recent_guests %}
+
+                    <tr>
+
+                        <td>
+                            <b>{{ guest.name }}</b>
+                        </td>
+
+                        <td>
+                            {{ guest.origin or '-' }}
+                        </td>
+
+                        <td>
+                            {{ guest.purpose }}
+                        </td>
+
+                        <td>
+                            {{ guest.visit_date.strftime('%d/%m/%Y') }}
+                        </td>
+
+                    </tr>
+
+                    {% else %}
+
+                    <tr>
+
+                        <td colspan="4" class="empty">
+                            Belum ada kunjungan.
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ================= AKSES CEPAT ================= -->
+
+<div class="section-grid">
+
+    <div class="card quick">
+
+        <h3>Akses Cepat</h3>
+
+        <a href="{{ url_for('books') }}">
+
+            <i class="fa-solid fa-book"></i>
+
+            <span>
+                <b>Kelola Buku</b>
+                <small>Tambah dan ubah koleksi</small>
+            </span>
+
+            <b>→</b>
+
+        </a>
+
+
+        <a href="{{ url_for('borrowers') }}">
+
+            <i class="fa-solid fa-user-plus"></i>
+
+            <span>
+                <b>Data Peminjam</b>
+                <small>Kelola anggota</small>
+            </span>
+
+            <b>→</b>
+
+        </a>
+
+
+        <a href="{{ url_for('guestbook') }}">
+
+            <i class="fa-solid fa-book-open-reader"></i>
+
+            <span>
+                <b>Buku Tamu</b>
+                <small>Catat kunjungan tamu</small>
+            </span>
+
+            <b>→</b>
+
+        </a>
+
+
+        <a href="{{ url_for('reports') }}">
+
+            <i class="fa-solid fa-chart-simple"></i>
+
+            <span>
+                <b>Lihat Laporan</b>
+                <small>Statistik perpustakaan</small>
+            </span>
+
+            <b>→</b>
+
+        </a>
+
+    </div>
+
+</div>
+
+{% endblock %}

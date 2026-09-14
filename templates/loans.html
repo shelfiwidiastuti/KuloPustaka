@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+
+{% block title %}Peminjaman · KuloPustaka{% endblock %}
+{% block page_title %}Peminjaman{% endblock %}
+
+{% block content %}
+
+<div class="page-heading">
+    <div>
+        <span class="eyebrow">TRANSAKSI</span>
+        <h1>Peminjaman Buku</h1>
+        <p>Catat dan kelola transaksi peminjaman.</p>
+    </div>
+
+    <button class="btn primary" onclick="openModal('loanModal')">
+        <i class="fa-solid fa-plus"></i>
+        Peminjaman Baru
+    </button>
+</div>
+
+<div class="card">
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Peminjam</th>
+                    <th>Buku</th>
+                    <th>Tgl. Pinjam</th>
+                    <th>Jatuh Tempo</th>
+                    <th>Status</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+            {% for l in loans %}
+
+            <tr>
+                <td>
+                    <b>{{ l.name }}</b>
+                    <small>{{ l.member_code }}</small>
+                </td>
+
+                <td>
+                    {{ l.title }}
+                </td>
+
+                <td>
+                    {{ l.loan_date.strftime('%d/%m/%Y') }}
+                </td>
+
+                <td>
+                    {{ l.due_date.strftime('%d/%m/%Y') }}
+                </td>
+
+                <td>
+                    <span class="badge {{ 'warning' if l.status == 'Dipinjam' else 'success' }}">
+                        {{ 'Terlambat' if l.status == 'Dipinjam' and l.due_date < today else l.status }}
+                    </span>
+                </td>
+
+                <td>
+
+                    {% if l.status == 'Dipinjam' %}
+
+                    <form
+                        method="POST"
+                        action="{{ url_for('return_loan', id=l.id) }}"
+                        onsubmit="return confirm('Catat buku sebagai sudah dikembalikan?')"
+                    >
+                        <button class="btn small success-btn">
+                            Kembalikan
+                        </button>
+                    </form>
+
+                    {% else %}
+
+                    <span class="muted">
+                        Selesai
+                    </span>
+
+                    {% endif %}
+
+                </td>
+            </tr>
+
+            {% else %}
+
+            <tr>
+                <td colspan="6" class="empty">
+                    Belum ada transaksi.
+                </td>
+            </tr>
+
+            {% endfor %}
+
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+<!-- MODAL PEMINJAMAN -->
+
+<div class="modal" id="loanModal">
+
+    <div class="modal-box">
+
+        <div class="modal-head">
+            <h3>Peminjaman Baru</h3>
+
+            <button onclick="closeModal('loanModal')">
+                ×
+            </button>
+        </div>
+
+        <form
+            method="POST"
+            action="{{ url_for('add_loan') }}"
+        >
+
+            <div class="form-grid">
+
+                <div class="full-field">
+
+                    <label>Peminjam</label>
+
+                    <select name="borrower_id" required>
+
+                        <option value="">
+                            Pilih peminjam
+                        </option>
+
+                        {% for b in borrowers %}
+
+                        <option value="{{ b.id }}">
+                            {{ b.member_code }} — {{ b.name }}
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+                <div class="full-field">
+
+                    <label>Buku</label>
+
+                    <select name="book_id" required>
+
+                        <option value="">
+                            Pilih buku
+                        </option>
+
+                        {% for b in books %}
+
+                        <option value="{{ b.id }}">
+                            {{ b.title }} (stok {{ b.stock }})
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+                <div>
+
+                    <label>Tanggal Pinjam</label>
+
+                    <input
+                        type="date"
+                        name="loan_date"
+                        value="{{ today }}"
+                        required
+                    >
+
+                </div>
+
+
+                <div>
+
+                    <label>Jatuh Tempo</label>
+
+                    <input
+                        type="date"
+                        name="due_date"
+                        required
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div class="modal-actions">
+
+                <button
+                    type="button"
+                    class="btn ghost"
+                    onclick="closeModal('loanModal')"
+                >
+                    Batal
+                </button>
+
+                <button class="btn primary">
+                    Simpan Peminjaman
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

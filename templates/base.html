@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}KuloPustaka{% endblock %}</title>
+
+    <link rel="icon" href="{{ url_for('static', filename='img/logo.svg') }}">
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+    {% block head %}{% endblock %}
+</head>
+
+<body>
+
+<div class="app-shell">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+
+        <div class="brand">
+
+            <img
+                src="{{ url_for('static', filename='img/logo.svg') }}"
+                alt="KuloPustaka"
+            >
+
+            <div>
+                <strong>KuloPustaka</strong>
+                <small>Perpustakaan Desa Kulo</small>
+            </div>
+
+        </div>
+
+
+        <!-- MENU -->
+        <nav>
+
+            <!-- DASHBOARD -->
+            <a href="{{ url_for('dashboard') }}"
+               class="{{ 'active' if request.endpoint == 'dashboard' }}">
+
+                <i class="fa-solid fa-grid-2"></i>
+                Dashboard
+
+            </a>
+
+
+            <!-- DATA BUKU -->
+            <a href="{{ url_for('books') }}"
+               class="{{ 'active' if request.endpoint in ['books','add_book','edit_book'] }}">
+
+                <i class="fa-solid fa-book"></i>
+                Data Buku
+
+            </a>
+
+
+            <!-- DATA PEMINJAM -->
+            <a href="{{ url_for('borrowers') }}"
+               class="{{ 'active' if request.endpoint == 'borrowers' }}">
+
+                <i class="fa-solid fa-users"></i>
+                Data Peminjam
+
+            </a>
+
+
+            <!-- PEMINJAMAN -->
+            <a href="{{ url_for('loans') }}"
+               class="{{ 'active' if request.endpoint in ['loans','add_loan','return_loan'] }}">
+
+                <i class="fa-solid fa-arrow-right-arrow-left"></i>
+                Peminjaman
+
+            </a>
+
+
+            <!-- RIWAYAT -->
+            <a href="{{ url_for('history') }}"
+               class="{{ 'active' if request.endpoint == 'history' }}">
+
+                <i class="fa-solid fa-clock-rotate-left"></i>
+                Riwayat
+
+            </a>
+
+
+            <!-- LAPORAN -->
+            <a href="{{ url_for('reports') }}"
+               class="{{ 'active' if request.endpoint == 'reports' }}">
+
+                <i class="fa-solid fa-chart-column"></i>
+                Laporan
+
+            </a>
+
+
+            <!-- BUKU TAMU -->
+            <a href="{{ url_for('guestbook') }}"
+               class="{{ 'active' if request.endpoint == 'guestbook' }}">
+
+                <i class="fa-solid fa-book-open-reader"></i>
+                Buku Tamu
+
+            </a>
+
+        </nav>
+
+
+        <!-- SIDEBAR BAWAH -->
+        <div class="sidebar-bottom">
+
+            <div class="office-card">
+
+                <i class="fa-solid fa-building"></i>
+
+                <span>
+                    Mode Internal Kantor
+                </span>
+
+            </div>
+
+
+            <a href="{{ url_for('logout') }}"
+               class="logout">
+
+                <i class="fa-solid fa-right-from-bracket"></i>
+                Keluar
+
+            </a>
+
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN -->
+    <main class="main">
+
+        <!-- TOPBAR -->
+        <header class="topbar">
+
+            <button
+                class="menu-btn"
+                onclick="toggleSidebar()"
+            >
+
+                <i class="fa-solid fa-bars"></i>
+
+            </button>
+
+
+            <div>
+
+                <span class="top-title">
+                    {% block page_title %}Dashboard{% endblock %}
+                </span>
+
+                <small>
+                    Sistem Peminjaman Buku
+                </small>
+
+            </div>
+
+
+            <div class="top-user">
+
+                <span class="avatar">
+                    <i class="fa-solid fa-user"></i>
+                </span>
+
+                <div>
+
+                    <b>Admin Kantor</b>
+
+                    <small>
+                        Petugas
+                    </small>
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <!-- CONTENT -->
+        <section class="content">
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+
+                {% if messages %}
+
+                    {% for category, message in messages %}
+
+                    <div class="alert {{ category }}">
+
+                        <i class="fa-solid fa-circle-info"></i>
+
+                        {{ message }}
+
+                        <button
+                            onclick="this.parentElement.remove()"
+                        >
+                            ×
+                        </button>
+
+                    </div>
+
+                    {% endfor %}
+
+                {% endif %}
+
+            {% endwith %}
+
+
+            {% block content %}{% endblock %}
+
+        </section>
+
+
+        <!-- FOOTER -->
+        <footer>
+            © {{ current_year }} KuloPustaka · Perpustakaan Desa Kulo
+        </footer>
+
+    </main>
+
+</div>
+
+
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+{% block scripts %}{% endblock %}
+
+</body>
+</html>

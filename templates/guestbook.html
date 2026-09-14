@@ -1,0 +1,617 @@
+{% extends "base.html" %}
+
+{% block title %}Buku Tamu · KuloPustaka{% endblock %}
+{% block page_title %}Buku Tamu{% endblock %}
+
+{% block content %}
+
+<div class="page-heading">
+    <div>
+        <span class="eyebrow">KUNJUNGAN</span>
+        <h1>Buku Tamu</h1>
+        <p>Catat dan kelola kunjungan ke Perpustakaan Desa Kulo.</p>
+    </div>
+
+    <button class="btn primary" type="button" id="btnAddGuest">
+        <i class="fa-solid fa-user-plus"></i>
+        Tambah Pengunjung
+    </button>
+</div>
+
+
+<!-- STATISTIK -->
+
+<div class="stats-grid">
+
+    <div class="stat-card">
+        <div class="stat-icon green">
+            <i class="fa-solid fa-users"></i>
+        </div>
+
+        <div>
+            <small>Pengunjung Hari Ini</small>
+            <strong>{{ today_visitors }}</strong>
+        </div>
+    </div>
+
+
+    <div class="stat-card">
+        <div class="stat-icon blue">
+            <i class="fa-solid fa-book-open-reader"></i>
+        </div>
+
+        <div>
+            <small>Total Pengunjung</small>
+            <strong>{{ total_visitors }}</strong>
+        </div>
+    </div>
+
+</div>
+
+
+<!-- FILTER -->
+
+<div class="card">
+
+    <form method="GET" class="filter-bar">
+
+        <div class="search-box">
+
+            <i class="fa-solid fa-magnifying-glass"></i>
+
+            <input
+                type="text"
+                name="q"
+                value="{{ q }}"
+                placeholder="Cari nama, asal, atau keperluan..."
+            >
+
+        </div>
+
+
+        <input
+            type="date"
+            name="visit_date"
+            value="{{ visit_date }}"
+        >
+
+
+        <button class="btn primary" type="submit">
+            <i class="fa-solid fa-filter"></i>
+            Filter
+        </button>
+
+
+        {% if q or visit_date %}
+
+        <a href="{{ url_for('guestbook') }}" class="btn ghost">
+            Reset
+        </a>
+
+        {% endif %}
+
+    </form>
+
+</div>
+
+
+<!-- TABEL -->
+
+<div class="card">
+
+    <div class="card-head">
+
+        <div>
+            <h3>Daftar Pengunjung</h3>
+            <p>Riwayat kunjungan perpustakaan.</p>
+        </div>
+
+
+        <button
+            type="button"
+            class="btn ghost"
+            onclick="window.print()"
+        >
+            <i class="fa-solid fa-print"></i>
+            Cetak
+        </button>
+
+    </div>
+
+
+    <div class="table-wrap">
+
+        <table>
+
+            <thead>
+
+                <tr>
+                    <th>No</th>
+                    <th>Nama Pengunjung</th>
+                    <th>Asal / Instansi</th>
+                    <th>Keperluan</th>
+                    <th>Tanggal</th>
+                    <th>Jam Masuk</th>
+                    <th>Jam Keluar</th>
+                    <th>Keterangan</th>
+                    <th>Aksi</th>
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+            {% for guest in guests %}
+
+                <tr>
+
+                    <td>
+                        {{ loop.index }}
+                    </td>
+
+
+                    <td>
+                        <b>{{ guest.name }}</b>
+                    </td>
+
+
+                    <td>
+                        {{ guest.origin or '-' }}
+                    </td>
+
+
+                    <td>
+                        {{ guest.purpose }}
+                    </td>
+
+
+                    <td>
+                        {{ guest.visit_date.strftime('%d/%m/%Y') if guest.visit_date else '-' }}
+                    </td>
+
+
+                    <td>
+                        {{ guest.entry_time|string }}
+                    </td>
+
+
+                    <td>
+                        {{ guest.exit_time|string if guest.exit_time else '-' }}
+                    </td>
+
+
+                    <td>
+                        {{ guest.note or '-' }}
+                    </td>
+
+
+                    <td>
+
+                        <div class="actions">
+
+                            <button
+                                type="button"
+                                class="icon-btn edit-guest"
+                                title="Edit"
+                                data-id="{{ guest.id }}"
+                                data-name="{{ guest.name }}"
+                                data-origin="{{ guest.origin or '' }}"
+                                data-purpose="{{ guest.purpose }}"
+                                data-date="{{ guest.visit_date }}"
+                                data-entry="{{ guest.entry_time|string }}"
+                                data-exit="{{ guest.exit_time|string if guest.exit_time else '' }}"
+                                data-note="{{ guest.note or '' }}"
+                            >
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
+
+
+                            <form
+                                method="POST"
+                                action="{{ url_for('delete_guest', id=guest.id) }}"
+                                onsubmit="return confirm('Yakin ingin menghapus data pengunjung ini?')"
+                                style="display:inline;"
+                            >
+
+                                <button
+                                    type="submit"
+                                    class="icon-btn danger"
+                                    title="Hapus"
+                                >
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+
+                            </form>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+
+            {% else %}
+
+                <tr>
+
+                    <td colspan="9" class="empty">
+
+                        <i class="fa-solid fa-book-open"></i>
+
+                        <p>Belum ada data pengunjung.</p>
+
+                        <small>
+                            Silakan tambahkan data pengunjung baru.
+                        </small>
+
+                    </td>
+
+                </tr>
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+
+
+<!-- MODAL TAMBAH / EDIT -->
+
+<div class="modal" id="guestModal">
+
+    <div class="modal-box">
+
+        <div class="modal-head">
+
+            <div>
+                <h3 id="modalTitle">Tambah Pengunjung</h3>
+                <small>Isi data kunjungan perpustakaan.</small>
+            </div>
+
+            <button type="button" id="btnCloseGuest">
+                ×
+            </button>
+
+        </div>
+
+
+        <form
+            method="POST"
+            action="{{ url_for('add_guest') }}"
+            id="guestForm"
+        >
+
+            <div class="form-grid">
+
+
+                <!-- NAMA -->
+
+                <div class="full-field">
+
+                    <label>
+                        Nama Pengunjung
+                    </label>
+
+                    <input
+                        type="text"
+                        name="name"
+                        id="guestName"
+                        placeholder="Masukkan nama pengunjung"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- ASAL -->
+
+                <div class="full-field">
+
+                    <label>
+                        Asal / Instansi
+                    </label>
+
+                    <input
+                        type="text"
+                        name="origin"
+                        id="guestOrigin"
+                        placeholder="Contoh: Desa Kulo / Sekolah"
+                    >
+
+                </div>
+
+
+                <!-- KEPERLUAN -->
+
+                <div class="full-field">
+
+                    <label>
+                        Keperluan
+                    </label>
+
+                    <select
+                        name="purpose"
+                        id="guestPurpose"
+                        required
+                    >
+
+                        <option value="">
+                            Pilih keperluan
+                        </option>
+
+                        <option value="Membaca">
+                            Membaca
+                        </option>
+
+                        <option value="Meminjam Buku">
+                            Meminjam Buku
+                        </option>
+
+                        <option value="Mengembalikan Buku">
+                            Mengembalikan Buku
+                        </option>
+
+                        <option value="Mencari Informasi">
+                            Mencari Informasi
+                        </option>
+
+                        <option value="Belajar">
+                            Belajar
+                        </option>
+
+                        <option value="Lainnya">
+                            Lainnya
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- TANGGAL -->
+
+                <div>
+
+                    <label>
+                        Tanggal Kunjungan
+                    </label>
+
+                    <input
+                        type="date"
+                        name="visit_date"
+                        id="guestDate"
+                        value="{{ today }}"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- JAM MASUK -->
+
+                <div>
+
+                    <label>
+                        Jam Masuk
+                    </label>
+
+                    <input
+                        type="time"
+                        name="entry_time"
+                        id="guestEntry"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- JAM KELUAR -->
+
+                <div>
+
+                    <label>
+                        Jam Keluar
+                    </label>
+
+                    <input
+                        type="time"
+                        name="exit_time"
+                        id="guestExit"
+                    >
+
+                </div>
+
+
+                <!-- KETERANGAN -->
+
+                <div class="full-field">
+
+                    <label>
+                        Keterangan
+                    </label>
+
+                    <textarea
+                        name="note"
+                        id="guestNote"
+                        rows="3"
+                        placeholder="Tambahkan keterangan jika diperlukan..."
+                    ></textarea>
+
+                </div>
+
+            </div>
+
+
+            <div class="modal-actions">
+
+                <button
+                    type="button"
+                    class="btn ghost"
+                    id="btnCancelGuest"
+                >
+                    Batal
+                </button>
+
+
+                <button
+                    type="submit"
+                    class="btn primary"
+                >
+                    <i class="fa-solid fa-floppy-disk"></i>
+                    <span id="submitText">Simpan Pengunjung</span>
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+{% endblock %}
+
+
+
+{% block scripts %}
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const modal = document.getElementById("guestModal");
+    const form = document.getElementById("guestForm");
+
+    const btnAdd = document.getElementById("btnAddGuest");
+    const btnClose = document.getElementById("btnCloseGuest");
+    const btnCancel = document.getElementById("btnCancelGuest");
+
+    const modalTitle = document.getElementById("modalTitle");
+    const submitText = document.getElementById("submitText");
+
+    const nameInput = document.getElementById("guestName");
+    const originInput = document.getElementById("guestOrigin");
+    const purposeInput = document.getElementById("guestPurpose");
+    const dateInput = document.getElementById("guestDate");
+    const entryInput = document.getElementById("guestEntry");
+    const exitInput = document.getElementById("guestExit");
+    const noteInput = document.getElementById("guestNote");
+
+
+    function openGuestModal() {
+
+        modal.classList.add("show");
+
+    }
+
+
+    function closeGuestModal() {
+
+        modal.classList.remove("show");
+
+    }
+
+
+    function resetForm() {
+
+        form.reset();
+
+        form.action = "{{ url_for('add_guest') }}";
+
+        modalTitle.textContent = "Tambah Pengunjung";
+
+        submitText.textContent = "Simpan Pengunjung";
+
+        dateInput.value = "{{ today }}";
+
+        const now = new Date();
+
+        const hours = String(now.getHours()).padStart(2, "0");
+        const minutes = String(now.getMinutes()).padStart(2, "0");
+
+        entryInput.value = `${hours}:${minutes}`;
+
+    }
+
+
+    btnAdd.addEventListener("click", function () {
+
+        resetForm();
+
+        openGuestModal();
+
+    });
+
+
+    btnClose.addEventListener("click", closeGuestModal);
+
+    btnCancel.addEventListener("click", closeGuestModal);
+
+
+    /* EDIT */
+
+    document.querySelectorAll(".edit-guest").forEach(function (button) {
+
+        button.addEventListener("click", function () {
+
+            const id = this.dataset.id;
+
+            nameInput.value = this.dataset.name || "";
+            originInput.value = this.dataset.origin || "";
+            purposeInput.value = this.dataset.purpose || "";
+            dateInput.value = this.dataset.date || "";
+            entryInput.value = this.dataset.entry || "";
+            exitInput.value = this.dataset.exit || "";
+            noteInput.value = this.dataset.note || "";
+
+
+            form.action = `/buku-tamu/edit/${id}`;
+
+            modalTitle.textContent = "Edit Pengunjung";
+
+            submitText.textContent = "Simpan Perubahan";
+
+            openGuestModal();
+
+        });
+
+    });
+
+
+    /* KLIK DI LUAR MODAL */
+
+    modal.addEventListener("click", function (event) {
+
+        if (event.target === modal) {
+
+            closeGuestModal();
+
+        }
+
+    });
+
+
+    /* ESC */
+
+    document.addEventListener("keydown", function (event) {
+
+        if (event.key === "Escape") {
+
+            closeGuestModal();
+
+        }
+
+    });
+
+});
+
+</script>
+
+{% endblock %}

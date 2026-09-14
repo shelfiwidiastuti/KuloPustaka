@@ -1,0 +1,9 @@
+{% extends "base.html" %}{% block title %}Peminjam · KuloPustaka{% endblock %}{% block page_title %}Data Peminjam{% endblock %}
+{% block content %}
+<div class="page-heading"><div><span class="eyebrow">ANGGOTA</span><h1>Data Peminjam</h1><p>Data masyarakat atau pegawai yang menggunakan layanan perpustakaan.</p></div><button class="btn primary" onclick="openModal('borrowerModal')"><i class="fa-solid fa-plus"></i> Tambah Peminjam</button></div>
+<div class="card"><div class="table-wrap"><table><thead><tr><th>No. Anggota</th><th>Nama</th><th>No. HP</th><th>Alamat</th><th>Pinjaman Aktif</th><th>Aksi</th></tr></thead><tbody>
+{% for b in borrowers %}<tr><td><span class="code">{{b.member_code}}</span></td><td><b>{{b.name}}</b></td><td>{{b.phone or '-'}}</td><td>{{b.address or '-'}}</td><td><span class="badge {{'warning' if b.active_loans else 'neutral'}}">{{b.active_loans}}</span></td><td><form method="POST" action="{{url_for('delete_borrower',id=b.id)}}" onsubmit="return confirm('Hapus data peminjam ini?')"><button class="icon-btn danger-text">⌫</button></form></td></tr>
+{% else %}<tr><td colspan="6" class="empty">Belum ada data peminjam.</td></tr>{% endfor %}
+</tbody></table></div></div>
+<div class="modal" id="borrowerModal"><div class="modal-box"><div class="modal-head"><h3>Tambah Peminjam</h3><button onclick="closeModal('borrowerModal')">×</button></div><form method="POST" action="{{url_for('add_borrower')}}"><div class="form-grid"><div><label>No. Anggota</label><input name="member_code" placeholder="AG-002" required></div><div><label>Nama Lengkap</label><input name="name" required></div><div><label>No. HP</label><input name="phone"></div><div class="full-field"><label>Alamat</label><textarea name="address" rows="3"></textarea></div></div><div class="modal-actions"><button type="button" class="btn ghost" onclick="closeModal('borrowerModal')">Batal</button><button class="btn primary">Simpan</button></div></form></div></div>
+{% endblock %}

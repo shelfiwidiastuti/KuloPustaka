@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Login · KuloPustaka</title>
+<link rel="icon" href="{{ url_for('static', filename='img/logo.svg') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="login-page">
+<div class="login-visual">
+    <div class="login-brand"><img src="{{ url_for('static', filename='img/logo.svg') }}"><div><b>KuloPustaka</b><span>Perpustakaan Desa Kulo</span></div></div>
+    <div class="login-copy"><span class="eyebrow">SISTEM INTERNAL</span><h1>Kelola perpustakaan dengan lebih <em>mudah.</em></h1><p>Catat buku, peminjaman, pengembalian, dan laporan dalam satu sistem.</p></div>
+    <div class="login-book">📚</div>
+</div>
+<div class="login-panel">
+    <div class="login-box">
+        <img class="mobile-logo" src="{{ url_for('static', filename='img/logo.svg') }}">
+        <span class="eyebrow">SELAMAT DATANG</span>
+        <h2>Masuk ke KuloPustaka</h2><p class="muted">Gunakan akun kantor untuk mengakses sistem.</p>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category,message in messages %}<div class="alert {{category}}">{{message}}</div>{% endfor %}
+        {% endwith %}
+        <form method="POST">
+            <label>Username</label><div class="input-icon"><span>⌾</span><input name="username" placeholder="Masukkan username" required></div>
+            <label>Password</label><div class="input-icon"><span>●</span><input id="password" type="password" name="password" placeholder="Masukkan password" required><button type="button" class="eye" onclick="togglePassword()">Lihat</button></div>
+            <button class="btn primary full" type="submit">Masuk ke Sistem <span>→</span></button>
+        </form>
+        <div class="login-note">🔒 Akses terbatas untuk petugas internal kantor.</div>
+    </div>
+</div>
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body></html>

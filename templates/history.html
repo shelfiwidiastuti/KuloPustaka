@@ -1,0 +1,5 @@
+{% extends "base.html" %}{% block title %}Riwayat · KuloPustaka{% endblock %}{% block page_title %}Riwayat Peminjaman{% endblock %}
+{% block content %}<div class="page-heading"><div><span class="eyebrow">ARSIP</span><h1>Riwayat Peminjaman</h1><p>Seluruh transaksi peminjaman dan pengembalian.</p></div></div>
+<div class="card"><div class="table-wrap"><table><thead><tr><th>Peminjam</th><th>Buku</th><th>Pinjam</th><th>Jatuh Tempo</th><th>Kembali</th><th>Status</th></tr></thead><tbody>
+{% for l in loans %}<tr><td><b>{{l.name}}</b><small>{{l.member_code}}</small></td><td>{{l.title}}</td><td>{{l.loan_date.strftime('%d/%m/%Y')}}</td><td>{{l.due_date.strftime('%d/%m/%Y')}}</td><td>{{l.return_date.strftime('%d/%m/%Y') if l.return_date else '-'}}</td><td><span class="badge {{'warning' if l.status=='Dipinjam' else 'success'}}">{{l.status}}</span></td></tr>{% else %}<tr><td colspan="6" class="empty">Belum ada riwayat.</td></tr>{% endfor %}
+</tbody></table></div></div>{% endblock %}
