@@ -5,3 +5,196 @@
 @media(max-width:800px){.sidebar{transform:translateX(-100%);transition:.25s}.sidebar.open{transform:translateX(0)}.main{margin-left:0;width:100%}.menu-btn{display:block}.topbar{padding:0 18px}.content{padding:22px 16px}.stats-grid{grid-template-columns:1fr 1fr}.welcome,.page-heading{align-items:flex-start;flex-direction:column}.login-page{grid-template-columns:1fr}.login-visual{display:none}.mobile-logo{display:block;width:55px;margin-bottom:22px}.form-grid{grid-template-columns:1fr}.full-field{grid-column:auto}.search{width:100%}.toolbar{gap:10px;flex-direction:column;align-items:stretch}}
 @media(max-width:480px){.stats-grid{grid-template-columns:1fr}.top-user div{display:none}}
 @media print{.sidebar,.topbar,.btn,.page-heading .btn,footer{display:none!important}.main{margin:0;width:100%}.content{padding:0}.card{box-shadow:none}}
+/* =========================================
+   UBAH KATA SANDI
+========================================= */
+
+.password-page {
+    max-width: 720px;
+    margin: 0 auto;
+}
+
+.password-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 18px;
+    padding: 30px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
+}
+
+.password-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 28px;
+}
+
+.password-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #fff7ed;
+    color: #ea580c;
+
+    font-size: 21px;
+}
+
+.password-header h2 {
+    margin: 0 0 5px;
+    font-size: 22px;
+}
+
+.password-header p {
+    margin: 0;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.password-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group label {
+    font-weight: 600;
+    font-size: 14px;
+    color: #374151;
+}
+
+.password-input {
+    position: relative;
+}
+
+.password-input input {
+    width: 100%;
+    box-sizing: border-box;
+
+    padding: 12px 46px 12px 14px;
+
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+
+    font-size: 14px;
+    outline: none;
+}
+
+.password-input input:focus {
+    border-color: #ea580c;
+    box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.1);
+}
+
+.toggle-password {
+    position: absolute;
+
+    right: 10px;
+    top: 50%;
+
+    transform: translateY(-50%);
+
+    border: none;
+    background: transparent;
+
+    color: #6b7280;
+
+    cursor: pointer;
+
+    padding: 6px;
+}
+
+.toggle-password:hover {
+    color: #ea580c;
+}
+
+.password-info {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+
+    padding: 12px 14px;
+
+    border-radius: 10px;
+
+    background: #fff7ed;
+    color: #9a3412;
+
+    font-size: 13px;
+}
+
+.password-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+
+    margin-top: 5px;
+}
+
+.password-actions a,
+.password-actions button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    padding: 11px 17px;
+
+    border-radius: 10px;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    text-decoration: none;
+
+    cursor: pointer;
+}
+
+.btn-secondary {
+    border: 1px solid #d1d5db;
+    background: #ffffff;
+    color: #374151;
+}
+
+.btn-secondary:hover {
+    background: #f9fafb;
+}
+
+.btn-primary {
+    border: none;
+    background: #ea580c;
+    color: #ffffff;
+}
+
+.btn-primary:hover {
+    background: #c2410c;
+}
+
+
+/* RESPONSIVE */
+
+@media (max-width: 600px) {
+
+    .password-card {
+        padding: 20px;
+    }
+
+    .password-actions {
+        flex-direction: column-reverse;
+    }
+
+    .password-actions a,
+    .password-actions button {
+        width: 100%;
+    }
+
+}

@@ -3,62 +3,203 @@
 {% block title %}Peminjaman · KuloPustaka{% endblock %}
 {% block page_title %}Peminjaman{% endblock %}
 
+{% block head %}
+<style>
+    /* =====================================================
+       SEARCHABLE BOOK DROPDOWN
+       ===================================================== */
+
+    .book-search {
+        position: relative;
+        width: 100%;
+    }
+
+    .book-search-input {
+        width: 100%;
+        padding: 12px 42px 12px 14px;
+        border: 1px solid #d9e1dd;
+        border-radius: 12px;
+        font-size: 15px;
+        background: #fff;
+        outline: none;
+        transition: 0.2s;
+    }
+
+    .book-search-input:focus {
+        border-color: #2f8f68;
+        box-shadow: 0 0 0 3px rgba(47, 143, 104, 0.10);
+    }
+
+    .book-search-icon {
+        position: absolute;
+        right: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #7b8782;
+        pointer-events: none;
+    }
+
+    .book-results {
+        display: none;
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: calc(100% + 6px);
+        background: #fff;
+        border: 1px solid #d9e1dd;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.10);
+        max-height: 240px;
+        overflow-y: auto;
+        z-index: 1000;
+    }
+
+    .book-results.show {
+        display: block;
+    }
+
+    .book-option {
+        padding: 12px 14px;
+        cursor: pointer;
+        border-bottom: 1px solid #eef1ef;
+        transition: background 0.15s;
+    }
+
+    .book-option:last-child {
+        border-bottom: none;
+    }
+
+    .book-option:hover {
+        background: #f4f8f6;
+    }
+
+    .book-option-title {
+        display: block;
+        font-weight: 600;
+        color: #24342d;
+        margin-bottom: 3px;
+    }
+
+    .book-option-info {
+        display: block;
+        font-size: 13px;
+        color: #7a8580;
+    }
+
+    .book-empty {
+        padding: 14px;
+        text-align: center;
+        color: #7a8580;
+        font-size: 14px;
+    }
+
+    .selected-book {
+        margin-top: 8px;
+        font-size: 13px;
+        color: #2f8f68;
+        display: none;
+    }
+</style>
+{% endblock %}
+
+
 {% block content %}
 
 <div class="page-heading">
+
     <div>
         <span class="eyebrow">TRANSAKSI</span>
+
         <h1>Peminjaman Buku</h1>
-        <p>Catat dan kelola transaksi peminjaman.</p>
+
+        <p>
+            Catat dan kelola transaksi peminjaman.
+        </p>
     </div>
 
-    <button class="btn primary" onclick="openModal('loanModal')">
+
+    <button
+        class="btn primary"
+        onclick="openModal('loanModal')"
+    >
         <i class="fa-solid fa-plus"></i>
         Peminjaman Baru
     </button>
+
 </div>
 
+
 <div class="card">
+
     <div class="table-wrap">
+
         <table>
+
             <thead>
+
                 <tr>
+
                     <th>Peminjam</th>
                     <th>Buku</th>
                     <th>Tgl. Pinjam</th>
                     <th>Jatuh Tempo</th>
                     <th>Status</th>
                     <th>Aksi</th>
+
                 </tr>
+
             </thead>
+
 
             <tbody>
 
             {% for l in loans %}
 
             <tr>
+
                 <td>
-                    <b>{{ l.name }}</b>
-                    <small>{{ l.member_code }}</small>
+
+                    <b>
+                        {{ l.name }}
+                    </b>
+
+                    <small>
+                        {{ l.member_code }}
+                    </small>
+
                 </td>
+
 
                 <td>
                     {{ l.title }}
                 </td>
 
+
                 <td>
                     {{ l.loan_date.strftime('%d/%m/%Y') }}
                 </td>
+
 
                 <td>
                     {{ l.due_date.strftime('%d/%m/%Y') }}
                 </td>
 
+
                 <td>
+
                     <span class="badge {{ 'warning' if l.status == 'Dipinjam' else 'success' }}">
-                        {{ 'Terlambat' if l.status == 'Dipinjam' and l.due_date < today else l.status }}
+
+                        {{
+                            'Terlambat'
+                            if l.status == 'Dipinjam'
+                            and l.due_date < today
+                            else l.status
+                        }}
+
                     </span>
+
                 </td>
+
 
                 <td>
 
@@ -69,9 +210,11 @@
                         action="{{ url_for('return_loan', id=l.id) }}"
                         onsubmit="return confirm('Catat buku sebagai sudah dikembalikan?')"
                     >
+
                         <button class="btn small success-btn">
                             Kembalikan
                         </button>
+
                     </form>
 
                     {% else %}
@@ -83,37 +226,61 @@
                     {% endif %}
 
                 </td>
+
             </tr>
 
             {% else %}
 
             <tr>
-                <td colspan="6" class="empty">
+
+                <td
+                    colspan="6"
+                    class="empty"
+                >
                     Belum ada transaksi.
                 </td>
+
             </tr>
 
             {% endfor %}
 
             </tbody>
+
         </table>
+
     </div>
+
 </div>
 
 
-<!-- MODAL PEMINJAMAN -->
+<!-- =====================================================
+     MODAL PEMINJAMAN
+     ===================================================== -->
 
 <div class="modal" id="loanModal">
 
     <div class="modal-box">
 
-        <div class="modal-head">
-            <h3>Peminjaman Baru</h3>
 
-            <button onclick="closeModal('loanModal')">
+        <!-- HEADER -->
+
+        <div class="modal-head">
+
+            <h3>
+                Peminjaman Baru
+            </h3>
+
+            <button
+                type="button"
+                onclick="closeModal('loanModal')"
+            >
                 ×
             </button>
+
         </div>
+
+
+        <!-- FORM -->
 
         <form
             method="POST"
@@ -122,20 +289,34 @@
 
             <div class="form-grid">
 
+
+                <!-- PEMINJAM -->
+
                 <div class="full-field">
 
-                    <label>Peminjam</label>
+                    <label>
+                        Peminjam
+                    </label>
 
-                    <select name="borrower_id" required>
+
+                    <select
+                        name="borrower_id"
+                        required
+                    >
 
                         <option value="">
                             Pilih peminjam
                         </option>
 
+
                         {% for b in borrowers %}
 
                         <option value="{{ b.id }}">
-                            {{ b.member_code }} — {{ b.name }}
+
+                            {{ b.member_code }}
+                            —
+                            {{ b.name }}
+
                         </option>
 
                         {% endfor %}
@@ -144,33 +325,113 @@
 
                 </div>
 
+
+                <!-- BUKU -->
 
                 <div class="full-field">
 
-                    <label>Buku</label>
+                    <label>
+                        Buku
+                    </label>
 
-                    <select name="book_id" required>
 
-                        <option value="">
-                            Pilih buku
-                        </option>
+                    <div class="book-search">
 
-                        {% for b in books %}
+                        <!-- INPUT PENCARIAN -->
 
-                        <option value="{{ b.id }}">
-                            {{ b.title }} (stok {{ b.stock }})
-                        </option>
+                        <input
+                            type="text"
+                            id="bookSearchInput"
+                            class="book-search-input"
+                            placeholder="Cari judul atau kode buku..."
+                            autocomplete="off"
+                        >
 
-                        {% endfor %}
 
-                    </select>
+                        <i class="fa-solid fa-magnifying-glass book-search-icon"></i>
+
+
+                        <!-- ID BUKU YANG DIKIRIM KE FLASK -->
+
+                        <input
+                            type="hidden"
+                            name="book_id"
+                            id="bookId"
+                            required
+                        >
+
+
+                        <!-- HASIL PENCARIAN -->
+
+                        <div
+                            class="book-results"
+                            id="bookResults"
+                        >
+
+                            {% for b in books %}
+
+                            <div
+                                class="book-option"
+                                data-id="{{ b.id }}"
+                                data-title="{{ b.title|lower }}"
+                                data-code="{{ b.code|lower }}"
+                                data-display="{{ b.title }}"
+                            >
+
+                                <span class="book-option-title">
+
+                                    {{ b.title }}
+
+                                </span>
+
+
+                                <span class="book-option-info">
+
+                                    Kode: {{ b.code }}
+                                    ·
+                                    Stok: {{ b.stock }}
+
+                                </span>
+
+                            </div>
+
+                            {% endfor %}
+
+
+                            <div
+                                class="book-empty"
+                                id="bookEmpty"
+                                style="display: none;"
+                            >
+                                Buku tidak ditemukan.
+                            </div>
+
+                        </div>
+
+
+                        <!-- BUKU YANG DIPILIH -->
+
+                        <div
+                            class="selected-book"
+                            id="selectedBook"
+                        >
+                            <i class="fa-solid fa-check"></i>
+                            Buku dipilih
+                        </div>
+
+                    </div>
 
                 </div>
 
 
+                <!-- TANGGAL PINJAM -->
+
                 <div>
 
-                    <label>Tanggal Pinjam</label>
+                    <label>
+                        Tanggal Pinjam
+                    </label>
+
 
                     <input
                         type="date"
@@ -182,9 +443,14 @@
                 </div>
 
 
+                <!-- JATUH TEMPO -->
+
                 <div>
 
-                    <label>Jatuh Tempo</label>
+                    <label>
+                        Jatuh Tempo
+                    </label>
+
 
                     <input
                         type="date"
@@ -197,6 +463,8 @@
             </div>
 
 
+            <!-- ACTION -->
+
             <div class="modal-actions">
 
                 <button
@@ -207,7 +475,11 @@
                     Batal
                 </button>
 
-                <button class="btn primary">
+
+                <button
+                    type="submit"
+                    class="btn primary"
+                >
                     Simpan Peminjaman
                 </button>
 
@@ -218,5 +490,243 @@
     </div>
 
 </div>
+
+{% endblock %}
+
+
+{% block scripts %}
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const searchInput =
+        document.getElementById("bookSearchInput");
+
+    const results =
+        document.getElementById("bookResults");
+
+    const bookId =
+        document.getElementById("bookId");
+
+    const selectedBook =
+        document.getElementById("selectedBook");
+
+    const emptyMessage =
+        document.getElementById("bookEmpty");
+
+    const bookOptions =
+        document.querySelectorAll(".book-option");
+
+
+    /*
+    ========================================================
+    BUKA HASIL SAAT INPUT DIKLIK
+    ========================================================
+    */
+
+    searchInput.addEventListener("focus", function () {
+
+        filterBooks();
+
+        results.classList.add("show");
+
+    });
+
+
+    /*
+    ========================================================
+    PENCARIAN BUKU
+    ========================================================
+    */
+
+    searchInput.addEventListener("input", function () {
+
+        // Reset buku yang dipilih
+        bookId.value = "";
+
+        selectedBook.style.display = "none";
+
+        filterBooks();
+
+        results.classList.add("show");
+
+    });
+
+
+    /*
+    ========================================================
+    FILTER JUDUL / KODE
+    ========================================================
+    */
+
+    function filterBooks() {
+
+        const keyword =
+            searchInput.value
+                .toLowerCase()
+                .trim();
+
+        let found = 0;
+
+
+        bookOptions.forEach(function (option) {
+
+            const title =
+                option.dataset.title;
+
+            const code =
+                option.dataset.code;
+
+
+            if (
+                title.includes(keyword) ||
+                code.includes(keyword)
+            ) {
+
+                option.style.display = "block";
+
+                found++;
+
+            } else {
+
+                option.style.display = "none";
+
+            }
+
+        });
+
+
+        if (found === 0) {
+
+            emptyMessage.style.display = "block";
+
+        } else {
+
+            emptyMessage.style.display = "none";
+
+        }
+
+    }
+
+
+    /*
+    ========================================================
+    PILIH BUKU
+    ========================================================
+    */
+
+    bookOptions.forEach(function (option) {
+
+        option.addEventListener("click", function () {
+
+            const id =
+                this.dataset.id;
+
+            const title =
+                this.dataset.display;
+
+
+            // Masukkan ID buku ke form
+            bookId.value = id;
+
+
+            // Tampilkan judul buku
+            searchInput.value = title;
+
+
+            // Tampilkan tanda buku dipilih
+            selectedBook.innerHTML =
+                '<i class="fa-solid fa-check"></i> ' +
+                'Buku dipilih: ' +
+                title;
+
+            selectedBook.style.display = "block";
+
+
+            // Tutup hasil pencarian
+            results.classList.remove("show");
+
+        });
+
+    });
+
+
+    /*
+    ========================================================
+    KLIK DI LUAR DROPDOWN
+    ========================================================
+    */
+
+    document.addEventListener("click", function (event) {
+
+        const bookSearch =
+            document.querySelector(".book-search");
+
+
+        if (
+            bookSearch &&
+            !bookSearch.contains(event.target)
+        ) {
+
+            results.classList.remove("show");
+
+        }
+
+    });
+
+
+    /*
+    ========================================================
+    RESET SAAT MODAL DITUTUP / DIBUKA LAGI
+    ========================================================
+    */
+
+    const loanModal =
+        document.getElementById("loanModal");
+
+
+    if (loanModal) {
+
+        const observer =
+            new MutationObserver(function () {
+
+                if (
+                    loanModal.style.display === "none" ||
+                    !loanModal.classList.contains("show")
+                ) {
+
+                    searchInput.value = "";
+
+                    bookId.value = "";
+
+                    selectedBook.style.display = "none";
+
+                    results.classList.remove("show");
+
+                    bookOptions.forEach(function (option) {
+
+                        option.style.display = "block";
+
+                    });
+
+                }
+
+            });
+
+
+        observer.observe(
+            loanModal,
+            {
+                attributes: true,
+                attributeFilter: ["style", "class"]
+            }
+        );
+
+    }
+
+});
+
+</script>
 
 {% endblock %}

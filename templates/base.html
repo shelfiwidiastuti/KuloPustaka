@@ -128,6 +128,19 @@
             </div>
 
 
+            <!-- UBAH KATA SANDI -->
+            <a
+                href="{{ url_for('change_password') }}"
+                class="{{ 'active' if request.endpoint == 'change_password' }}"
+            >
+
+                <i class="fa-solid fa-key"></i>
+                Ubah Kata Sandi
+
+            </a>
+
+
+            <!-- KELUAR -->
             <a href="{{ url_for('logout') }}"
                class="logout">
 
