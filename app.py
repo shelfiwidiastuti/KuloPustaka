@@ -1707,7 +1707,6 @@ def guestbook():
 # =========================================================
 # TAMBAH BUKU TAMU
 # =========================================================
-
 @app.route("/buku-tamu/tambah", methods=["POST"])
 @login_required
 def add_guest():
@@ -1716,7 +1715,6 @@ def add_guest():
 
     db = get_db()
     cur = db.cursor()
-
 
     cur.execute("""
         INSERT INTO guestbook
@@ -1727,9 +1725,10 @@ def add_guest():
             visit_date,
             entry_time,
             exit_time,
-            note
+            note,
+            paraf
         )
-        VALUES (%s,%s,%s,%s,%s,%s,%s)
+        VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
     """, (
         data["name"],
         data["origin"],
@@ -1737,15 +1736,14 @@ def add_guest():
         data["visit_date"],
         data["entry_time"],
         data.get("exit_time") or None,
-        data["note"]
+        data.get("note", ""),
+        data.get("paraf", "")
     ))
-
 
     db.commit()
 
     cur.close()
     db.close()
-
 
     flash(
         "Data tamu berhasil ditambahkan.",
@@ -1754,7 +1752,9 @@ def add_guest():
 
     return redirect(url_for("guestbook"))
 
-
+# =========================================================
+# EDIT BUKU TAMU
+# =========================================================
 # =========================================================
 # EDIT BUKU TAMU
 # =========================================================
@@ -1768,7 +1768,6 @@ def edit_guest(id):
     db = get_db()
     cur = db.cursor()
 
-
     cur.execute("""
         UPDATE guestbook
         SET
@@ -1778,7 +1777,8 @@ def edit_guest(id):
             visit_date=%s,
             entry_time=%s,
             exit_time=%s,
-            note=%s
+            note=%s,
+            paraf=%s
         WHERE id=%s
     """, (
         data["name"],
@@ -1787,16 +1787,15 @@ def edit_guest(id):
         data["visit_date"],
         data["entry_time"],
         data.get("exit_time") or None,
-        data["note"],
+        data.get("note", ""),
+        data.get("paraf", ""),
         id
     ))
-
 
     db.commit()
 
     cur.close()
     db.close()
-
 
     flash(
         "Data tamu berhasil diperbarui.",
@@ -1804,7 +1803,6 @@ def edit_guest(id):
     )
 
     return redirect(url_for("guestbook"))
-
 
 # =========================================================
 # HAPUS BUKU TAMU

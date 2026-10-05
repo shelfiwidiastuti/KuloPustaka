@@ -50,8 +50,9 @@
 
 
 <!-- FILTER -->
+<!-- FILTER -->
 
-<div class="card">
+<div class="card no-print guest-filter">
 
     <form method="GET" class="filter-bar">
 
@@ -68,19 +69,16 @@
 
         </div>
 
-
         <input
             type="date"
             name="visit_date"
             value="{{ visit_date }}"
         >
 
-
         <button class="btn primary" type="submit">
             <i class="fa-solid fa-filter"></i>
             Filter
         </button>
-
 
         {% if q or visit_date %}
 
@@ -133,7 +131,8 @@
                     <th>Tanggal</th>
                     <th>Jam Masuk</th>
                     <th>Jam Keluar</th>
-                    <th>Keterangan</th>
+                    <th>Kesan &amp; Saran</th>
+                    <th>Paraf</th>
                     <th>Aksi</th>
                 </tr>
 
@@ -186,6 +185,33 @@
                     </td>
 
 
+                    <!-- PARAF -->
+
+                    <td class="guest-signature">
+
+                        {% if guest.paraf %}
+
+                            <img
+                                src="{{ guest.paraf }}"
+                                alt="Paraf {{ guest.name }}"
+                                style="
+                                    width:100px;
+                                    height:45px;
+                                    object-fit:contain;
+                                "
+                            >
+
+                        {% else %}
+
+                            <span>-</span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- AKSI -->
+
                     <td>
 
                         <div class="actions">
@@ -202,6 +228,7 @@
                                 data-entry="{{ guest.entry_time|string }}"
                                 data-exit="{{ guest.exit_time|string if guest.exit_time else '' }}"
                                 data-note="{{ guest.note or '' }}"
+                                data-paraf="{{ guest.paraf or '' }}"
                             >
                                 <i class="fa-solid fa-pen"></i>
                             </button>
@@ -235,7 +262,7 @@
 
                 <tr>
 
-                    <td colspan="9" class="empty">
+                    <td colspan="10" class="empty">
 
                         <i class="fa-solid fa-book-open"></i>
 
@@ -261,7 +288,9 @@
 
 
 
-<!-- MODAL TAMBAH / EDIT -->
+<!-- =========================
+     MODAL TAMBAH / EDIT
+========================= -->
 
 <div class="modal" id="guestModal">
 
@@ -332,7 +361,7 @@
                 <div class="full-field">
 
                     <label>
-                        Keperluan
+                        Tujuan
                     </label>
 
                     <select
@@ -428,25 +457,79 @@
                 </div>
 
 
-                <!-- KETERANGAN -->
+                <!-- KESAN & SARAN -->
 
                 <div class="full-field">
 
                     <label>
-                        Keterangan
+                        Kesan &amp; Saran
                     </label>
 
                     <textarea
                         name="note"
                         id="guestNote"
                         rows="3"
-                        placeholder="Tambahkan keterangan jika diperlukan..."
+                        placeholder="Tuliskan kesan dan saran..."
                     ></textarea>
+
+                </div>
+
+
+                <!-- =========================
+                     PARAF / TANDA TANGAN
+                ========================== -->
+
+                <div class="full-field">
+
+                    <label>
+                        Paraf / Tanda Tangan
+                    </label>
+
+                    <div class="signature-wrapper">
+
+                        <canvas
+                            id="signatureCanvas"
+                            width="600"
+                            height="200"
+                        ></canvas>
+
+                    </div>
+
+
+                    <input
+                        type="hidden"
+                        name="paraf"
+                        id="guestParaf"
+                    >
+
+
+                    <button
+                        type="button"
+                        class="btn ghost"
+                        id="clearSignature"
+                        style="margin-top:10px;"
+                    >
+                        <i class="fa-solid fa-eraser"></i>
+                        Hapus Paraf
+                    </button>
+
+
+                    <small
+                        style="
+                            display:block;
+                            margin-top:7px;
+                            color:#777;
+                        "
+                    >
+                        Silakan buat paraf atau tanda tangan pada kotak di atas.
+                    </small>
 
                 </div>
 
             </div>
 
+
+            <!-- TOMBOL -->
 
             <div class="modal-actions">
 
@@ -464,7 +547,11 @@
                     class="btn primary"
                 >
                     <i class="fa-solid fa-floppy-disk"></i>
-                    <span id="submitText">Simpan Pengunjung</span>
+
+                    <span id="submitText">
+                        Simpan Pengunjung
+                    </span>
+
                 </button>
 
             </div>
@@ -486,24 +573,76 @@
 
 document.addEventListener("DOMContentLoaded", function () {
 
-    const modal = document.getElementById("guestModal");
-    const form = document.getElementById("guestForm");
+    /* =========================
+       ELEMENT
+    ========================== */
 
-    const btnAdd = document.getElementById("btnAddGuest");
-    const btnClose = document.getElementById("btnCloseGuest");
-    const btnCancel = document.getElementById("btnCancelGuest");
+    const modal =
+        document.getElementById("guestModal");
 
-    const modalTitle = document.getElementById("modalTitle");
-    const submitText = document.getElementById("submitText");
+    const form =
+        document.getElementById("guestForm");
 
-    const nameInput = document.getElementById("guestName");
-    const originInput = document.getElementById("guestOrigin");
-    const purposeInput = document.getElementById("guestPurpose");
-    const dateInput = document.getElementById("guestDate");
-    const entryInput = document.getElementById("guestEntry");
-    const exitInput = document.getElementById("guestExit");
-    const noteInput = document.getElementById("guestNote");
+    const btnAdd =
+        document.getElementById("btnAddGuest");
 
+    const btnClose =
+        document.getElementById("btnCloseGuest");
+
+    const btnCancel =
+        document.getElementById("btnCancelGuest");
+
+    const modalTitle =
+        document.getElementById("modalTitle");
+
+    const submitText =
+        document.getElementById("submitText");
+
+
+    const nameInput =
+        document.getElementById("guestName");
+
+    const originInput =
+        document.getElementById("guestOrigin");
+
+    const purposeInput =
+        document.getElementById("guestPurpose");
+
+    const dateInput =
+        document.getElementById("guestDate");
+
+    const entryInput =
+        document.getElementById("guestEntry");
+
+    const exitInput =
+        document.getElementById("guestExit");
+
+    const noteInput =
+        document.getElementById("guestNote");
+
+
+    /* =========================
+       SIGNATURE
+    ========================== */
+
+    const signatureCanvas =
+        document.getElementById("signatureCanvas");
+
+    const parafInput =
+        document.getElementById("guestParaf");
+
+    const clearSignature =
+        document.getElementById("clearSignature");
+
+    const ctx =
+        signatureCanvas.getContext("2d");
+
+    let drawing = false;
+
+
+    /* =========================
+       BUKA MODAL
+    ========================== */
 
     function openGuestModal() {
 
@@ -512,6 +651,10 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 
+    /* =========================
+       TUTUP MODAL
+    ========================== */
+
     function closeGuestModal() {
 
         modal.classList.remove("show");
@@ -519,96 +662,396 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 
-    function resetForm() {
+    /* =========================
+       POSISI MOUSE / TOUCH
+    ========================== */
 
-        form.reset();
+    function getSignaturePosition(event) {
 
-        form.action = "{{ url_for('add_guest') }}";
+        const rect =
+            signatureCanvas.getBoundingClientRect();
 
-        modalTitle.textContent = "Tambah Pengunjung";
+        const scaleX =
+            signatureCanvas.width / rect.width;
 
-        submitText.textContent = "Simpan Pengunjung";
+        const scaleY =
+            signatureCanvas.height / rect.height;
 
-        dateInput.value = "{{ today }}";
+        return {
 
-        const now = new Date();
+            x:
+                (event.clientX - rect.left)
+                * scaleX,
 
-        const hours = String(now.getHours()).padStart(2, "0");
-        const minutes = String(now.getMinutes()).padStart(2, "0");
+            y:
+                (event.clientY - rect.top)
+                * scaleY
 
-        entryInput.value = `${hours}:${minutes}`;
+        };
 
     }
 
 
-    btnAdd.addEventListener("click", function () {
+    /* =========================
+       SIMPAN PARAF
+    ========================== */
 
-        resetForm();
+    function saveSignature() {
 
-        openGuestModal();
+        parafInput.value =
+            signatureCanvas.toDataURL("image/png");
 
-    });
-
-
-    btnClose.addEventListener("click", closeGuestModal);
-
-    btnCancel.addEventListener("click", closeGuestModal);
+    }
 
 
-    /* EDIT */
+    /* =========================
+       HAPUS PARAF
+    ========================== */
 
-    document.querySelectorAll(".edit-guest").forEach(function (button) {
+    function clearSignatureCanvas() {
 
-        button.addEventListener("click", function () {
+        ctx.clearRect(
+            0,
+            0,
+            signatureCanvas.width,
+            signatureCanvas.height
+        );
 
-            const id = this.dataset.id;
+        parafInput.value = "";
 
-            nameInput.value = this.dataset.name || "";
-            originInput.value = this.dataset.origin || "";
-            purposeInput.value = this.dataset.purpose || "";
-            dateInput.value = this.dataset.date || "";
-            entryInput.value = this.dataset.entry || "";
-            exitInput.value = this.dataset.exit || "";
-            noteInput.value = this.dataset.note || "";
+    }
 
 
-            form.action = `/buku-tamu/edit/${id}`;
+    /* =========================
+       MULAI MENGGAMBAR
+    ========================== */
 
-            modalTitle.textContent = "Edit Pengunjung";
+    signatureCanvas.addEventListener(
+        "pointerdown",
+        function (event) {
 
-            submitText.textContent = "Simpan Perubahan";
+            drawing = true;
+
+            const pos =
+                getSignaturePosition(event);
+
+            ctx.beginPath();
+
+            ctx.moveTo(
+                pos.x,
+                pos.y
+            );
+
+            signatureCanvas.setPointerCapture(
+                event.pointerId
+            );
+
+        }
+    );
+
+
+    /* =========================
+       MENGGAMBAR
+    ========================== */
+
+    signatureCanvas.addEventListener(
+        "pointermove",
+        function (event) {
+
+            if (!drawing) return;
+
+            const pos =
+                getSignaturePosition(event);
+
+            ctx.lineWidth = 2;
+
+            ctx.lineCap = "round";
+
+            ctx.lineJoin = "round";
+
+            ctx.lineTo(
+                pos.x,
+                pos.y
+            );
+
+            ctx.stroke();
+
+        }
+    );
+
+
+    /* =========================
+       SELESAI MENGGAMBAR
+    ========================== */
+
+    signatureCanvas.addEventListener(
+        "pointerup",
+        function () {
+
+            drawing = false;
+
+            saveSignature();
+
+        }
+    );
+
+
+    signatureCanvas.addEventListener(
+        "pointercancel",
+        function () {
+
+            drawing = false;
+
+        }
+    );
+
+
+    /* =========================
+       TOMBOL HAPUS PARAF
+    ========================== */
+
+    clearSignature.addEventListener(
+        "click",
+        function () {
+
+            clearSignatureCanvas();
+
+        }
+    );
+
+
+    /* =========================
+       RESET FORM
+    ========================== */
+
+    function resetForm() {
+
+        form.reset();
+
+        form.action =
+            "{{ url_for('add_guest') }}";
+
+        modalTitle.textContent =
+            "Tambah Pengunjung";
+
+        submitText.textContent =
+            "Simpan Pengunjung";
+
+        dateInput.value =
+            "{{ today }}";
+
+
+        const now =
+            new Date();
+
+        const hours =
+            String(
+                now.getHours()
+            ).padStart(2, "0");
+
+        const minutes =
+            String(
+                now.getMinutes()
+            ).padStart(2, "0");
+
+        entryInput.value =
+            `${hours}:${minutes}`;
+
+
+        /* Hapus canvas */
+
+        clearSignatureCanvas();
+
+    }
+
+
+    /* =========================
+       TAMBAH PENGUNJUNG
+    ========================== */
+
+    btnAdd.addEventListener(
+        "click",
+        function () {
+
+            resetForm();
 
             openGuestModal();
 
+        }
+    );
+
+
+    /* =========================
+       TUTUP MODAL
+    ========================== */
+
+    btnClose.addEventListener(
+        "click",
+        closeGuestModal
+    );
+
+    btnCancel.addEventListener(
+        "click",
+        closeGuestModal
+    );
+
+
+    /* =========================
+       EDIT PENGUNJUNG
+    ========================== */
+
+    document
+        .querySelectorAll(".edit-guest")
+        .forEach(function (button) {
+
+            button.addEventListener(
+                "click",
+                function () {
+
+                    const id =
+                        this.dataset.id;
+
+
+                    nameInput.value =
+                        this.dataset.name || "";
+
+                    originInput.value =
+                        this.dataset.origin || "";
+
+                    purposeInput.value =
+                        this.dataset.purpose || "";
+
+                    dateInput.value =
+                        this.dataset.date || "";
+
+                    entryInput.value =
+                        this.dataset.entry || "";
+
+                    exitInput.value =
+                        this.dataset.exit || "";
+
+                    noteInput.value =
+                        this.dataset.note || "";
+
+
+                    /* =========================
+                       LOAD PARAF LAMA
+                    ========================== */
+
+                    const oldParaf =
+                        this.dataset.paraf || "";
+
+
+                    if (oldParaf) {
+
+                        const image =
+                            new Image();
+
+                        image.onload =
+                            function () {
+
+                                ctx.clearRect(
+                                    0,
+                                    0,
+                                    signatureCanvas.width,
+                                    signatureCanvas.height
+                                );
+
+                                ctx.drawImage(
+                                    image,
+                                    0,
+                                    0,
+                                    signatureCanvas.width,
+                                    signatureCanvas.height
+                                );
+
+                            };
+
+                        image.src =
+                            oldParaf;
+
+                        parafInput.value =
+                            oldParaf;
+
+                    } else {
+
+                        clearSignatureCanvas();
+
+                    }
+
+
+                    form.action =
+                        `/buku-tamu/edit/${id}`;
+
+
+                    modalTitle.textContent =
+                        "Edit Pengunjung";
+
+                    submitText.textContent =
+                        "Simpan Perubahan";
+
+
+                    openGuestModal();
+
+                }
+            );
+
         });
 
-    });
 
+    /* =========================
+       PASTIKAN PARAF TERSIMPAN
+       SEBELUM SUBMIT
+    ========================== */
 
-    /* KLIK DI LUAR MODAL */
+    form.addEventListener(
+        "submit",
+        function () {
 
-    modal.addEventListener("click", function (event) {
+            if (drawing) {
+                drawing = false;
+            }
 
-        if (event.target === modal) {
-
-            closeGuestModal();
-
-        }
-
-    });
-
-
-    /* ESC */
-
-    document.addEventListener("keydown", function (event) {
-
-        if (event.key === "Escape") {
-
-            closeGuestModal();
+            saveSignature();
 
         }
+    );
 
-    });
+
+    /* =========================
+       KLIK DI LUAR MODAL
+    ========================== */
+
+    modal.addEventListener(
+        "click",
+        function (event) {
+
+            if (event.target === modal) {
+
+                closeGuestModal();
+
+            }
+
+        }
+    );
+
+
+    /* =========================
+       TOMBOL ESC
+    ========================== */
+
+    document.addEventListener(
+        "keydown",
+        function (event) {
+
+            if (event.key === "Escape") {
+
+                closeGuestModal();
+
+            }
+
+        }
+    );
 
 });
 
